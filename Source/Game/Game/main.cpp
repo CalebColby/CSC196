@@ -1,13 +1,18 @@
+#include "../../Engine/Core/Random.h"
+#include "../../Engine/Core/FileIO.h"
 #include <iostream>
+
+
+using namespace std;
 
 int main() 
 {
-#ifdef _DEBUG
-	std::cout << "Debug!\n";
-#endif
+	cout << neu::getFilePath() << endl;
 
-	
-	std::cout << "Hello World!\n";
 
-	return 0;
+	neu::seedRandom((unsigned int)time(nullptr));
+	for (size_t i = 0; i < 10; i++)
+	{
+		cout << neu::random(5, 10) << endl;
+	}
 }
