@@ -2,6 +2,7 @@
 #include "Core/FileIO.h"
 #include "Core/Memory.h"
 #include "Core/Time.h"
+#include "Core/Random.h"
 #include "Renderer/Renderer.h"
 #include <iostream>
 
@@ -9,35 +10,23 @@
 using namespace std;
 
 
-int main() 
+int main(int argc, char* argv[])
 {
-	neu::g_MemoryTracker.displayInfo();
-	int* p = new int;
-	neu::g_MemoryTracker.displayInfo();
-	delete p;
-	neu::g_MemoryTracker.displayInfo();
+	auto renderer = new neu::Renderer();
+
+	renderer->CreateWindow("Test", 800,600);
 	
-	/*auto start = std::chrono::high_resolution_clock::now();
-	for (size_t i = 0; i < 1000000; i++) {}
-	auto end = std::chrono::high_resolution_clock::now();
-
-	cout << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() << endl;*/
-
-	/*cout << neu::getFilePath() << endl;
-	neu::setFilePath("Assets");
-	cout << neu::getFilePath() << endl;
-
-	size_t size;
-	neu::getFileSize("Game.txt", size);
-	cout << size << endl;
-
-	std::string buffer;
-	neu::readFile("Game.txt", buffer);
-	cout << buffer << endl;
-
-	neu::seedRandom((unsigned int)time(nullptr));
-	for (size_t i = 0; i < 10; i++)
+	while (true)
 	{
-		cout << neu::random(5, 10) << endl;
-	}*/
+		renderer->BeginFrame();
+
+		renderer->DrawLine(neu::random(renderer->GetWidth()), neu::random(renderer->GetHeight()),
+			neu::random(renderer->GetWidth()), neu::random(renderer->GetHeight()) );
+
+		renderer->EndFrame();
+	}
+
+
+
+	return 0;
 }
