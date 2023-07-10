@@ -1,6 +1,7 @@
 #include "Core/Core.h"
 #include "Renderer/Model.h"
 #include "Renderer/Renderer.h"
+#include "Input/InputSystem.h"
 #include <iostream>
 #include <vector>
 
@@ -39,6 +40,9 @@ int main(int argc, char* argv[])
 	renderer.Initialize();
 	renderer.CreateWindow("CSC196", 800,600);
 
+	neu::InputSystem inputSystem;
+	inputSystem.Initialize();
+
 	std::vector<neu::Vector2> points{ {-10, 5}, { 10, 5 }, { 0, -5 }, {-10, 5} };
 	neu::Model model(points);
 
@@ -53,9 +57,30 @@ int main(int argc, char* argv[])
 		stars.push_back(Star(pos, vel));
 	}
 
-	
-	while (true)
+	bool quit = false;
+	while (!quit)
 	{
+		inputSystem.Update();
+		if (inputSystem.GetKeyDown(SDL_SCANCODE_ESCAPE))
+		{
+			quit = true;
+		}
+
+		if (inputSystem.GetMouseButtonDown(0)) {
+			neu::Vector2 Mpos{inputSystem.GetMousePosition()};
+			std::cout << "Left Click at X: " << Mpos.x << ", Y: " << Mpos.y << endl;
+		}
+
+		if (inputSystem.GetMouseButtonDown(1)) {
+			neu::Vector2 Mpos{inputSystem.GetMousePosition()};
+			std::cout << "Mid Click at X: " << Mpos.x << ", Y: " << Mpos.y << endl;
+		}
+
+		if (inputSystem.GetMouseButtonDown(2)) {
+			neu::Vector2 Mpos{inputSystem.GetMousePosition()};
+			std::cout << "Right Click at X: " << Mpos.x << ", Y: " << Mpos.y << endl;
+		}
+
 		renderer.SetColor(0, 0, 0, 0);
 		renderer.BeginFrame();
 		
@@ -69,14 +94,12 @@ int main(int argc, char* argv[])
 			renderer.DrawPoint(star.m_pos.x, star.m_pos.y);
 		}
 
-		//renderer.SetColor(255, 255, 255, 255);
+		renderer.SetColor(255, 255, 255, 255);
 		
 		model.Draw(renderer, {500, 500}, 4.0f );
 
 		renderer.EndFrame();
 	}
-
-
 
 	return 0;
 }
