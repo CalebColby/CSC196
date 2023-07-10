@@ -1,4 +1,5 @@
 #include "Core/Core.h"
+#include "Renderer/Model.h"
 #include "Renderer/Renderer.h"
 #include <iostream>
 #include <vector>
@@ -38,11 +39,16 @@ int main(int argc, char* argv[])
 	renderer.Initialize();
 	renderer.CreateWindow("CSC196", 800,600);
 
+	std::vector<neu::Vector2> points{ {-10, 5}, { 10, 5 }, { 0, -5 }, {-10, 5} };
+	neu::Model model(points);
+
+
+
 	vector<Star> stars;
 	for (size_t i = 0; i < 1000; i++)
 	{
 		neu::Vector2 pos(neu::randomf(renderer.GetWidth()), neu::randomf(renderer.GetHeight()));
-		neu::Vector2 vel(neu::randomf(1,4), 0.0f);
+		neu::Vector2 vel(neu::randomf(1,4), neu::randomf(-2.0f, 2.0f));
 
 		stars.push_back(Star(pos, vel));
 	}
@@ -54,7 +60,6 @@ int main(int argc, char* argv[])
 		renderer.BeginFrame();
 		
 		//draw
-		neu::Vector2 vel(1.0f, 0.3f);
 
 		for (auto& star : stars) 
 		{
@@ -63,10 +68,10 @@ int main(int argc, char* argv[])
 			renderer.SetColor(neu::random(256), neu::random(256), neu::random(256), 255);
 			renderer.DrawPoint(star.m_pos.x, star.m_pos.y);
 		}
+
+		//renderer.SetColor(255, 255, 255, 255);
 		
-		//renderer.SetColor(neu::random(256), neu::random(256), neu::random(256), 255);
-		//renderer.DrawLine(neu::random(renderer.GetWidth()), neu::random(renderer.GetHeight()),
-		//neu::random(renderer.GetWidth()), neu::random(renderer.GetHeight()) );
+		model.Draw(renderer, {500, 500}, 4.0f );
 
 		renderer.EndFrame();
 	}
