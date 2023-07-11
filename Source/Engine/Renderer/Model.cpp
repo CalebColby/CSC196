@@ -1,7 +1,32 @@
 #include "Model.h"
+#include "Core/FileIO.h"
+#include <sstream>
 
 namespace neu
 {
+	bool Model::Load(const std::string& fileName)
+	{
+		std::string buffer;
+		neu::readFile(fileName, buffer);
+
+		std::istringstream stream(buffer);
+
+		std::string line;
+		std::getline(stream, line);
+
+		int numPoints = std::stoi(line);
+		for (size_t i = 0; i < numPoints; i++)
+		{
+			vec2 point;
+
+			stream >> point;
+
+			m_points.push_back(point);
+		}
+
+
+ 		return true;
+	}
 	void Model::Draw(Renderer& renderer, const vec2& position, float scale)
 	{
 		if (m_points.empty()) return; 

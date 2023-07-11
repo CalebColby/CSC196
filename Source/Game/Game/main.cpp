@@ -4,7 +4,7 @@
 #include "Input/InputSystem.h"
 #include <iostream>
 #include <vector>
-
+#include <thread>
 
 using namespace std;
 
@@ -18,7 +18,7 @@ public:
 
 	void Update(int width, int height)
 	{
-		m_pos += m_vel;
+		m_pos += m_vel * neu::g_Time.GetDeltaTime();
 
 		if (m_pos.x >= width) { m_pos.x = 0; }
 		if (m_pos.y >= height) { m_pos.y = 0; }
@@ -33,7 +33,7 @@ public:
 int main(int argc, char* argv[])
 {	
 	neu::seedRandom((unsigned int)time(nullptr));
-
+	neu::setFilePath("assets");
 	
 
 	neu::Renderer renderer;
@@ -43,42 +43,57 @@ int main(int argc, char* argv[])
 	neu::InputSystem inputSystem;
 	inputSystem.Initialize();
 
-	std::vector<neu::Vector2> points{ {-10, 5}, { 10, 5 }, { 0, -5 }, {-10, 5} };
-	neu::Model model(points);
+	//std::vector<neu::Vector2> points{ {-10, 5}, { 10, 5 }, { 0, -5 }, {-10, 5} };
+	neu::Model model;
+	model.Load("Ship.txt");
 
 
-
-	vector<Star> stars;
+	std::vector<Star> stars;
 	for (size_t i = 0; i < 1000; i++)
 	{
 		neu::Vector2 pos(neu::randomf(renderer.GetWidth()), neu::randomf(renderer.GetHeight()));
-		neu::Vector2 vel(neu::randomf(1,4), neu::randomf(-2.0f, 2.0f));
+		neu::Vector2 vel(neu::randomf(100,400), neu::randomf(-200, 200));
 
 		stars.push_back(Star(pos, vel));
 	}
 
+	neu::Vector2 position{ 400, 300 };
+	float speed = 500;
+
+
+	//main game loop
 	bool quit = false;
 	while (!quit)
 	{
+		neu::g_Time.Tick();
 		inputSystem.Update();
 		if (inputSystem.GetKeyDown(SDL_SCANCODE_ESCAPE))
 		{
 			quit = true;
 		}
 
+		neu::vec2 direction;
+
+		if (inputSystem.GetKeyDown(SDL_SCANCODE_W)) direction.y = -1;
+		if (inputSystem.GetKeyDown(SDL_SCANCODE_A)) direction.x = -1;
+		if (inputSystem.GetKeyDown(SDL_SCANCODE_S)) direction.y = 1;
+		if (inputSystem.GetKeyDown(SDL_SCANCODE_D)) direction.x = 1;
+		position += direction * speed * neu::g_Time.GetDeltaTime();
+
+
 		if (inputSystem.GetMouseButtonDown(0)) {
 			neu::Vector2 Mpos{inputSystem.GetMousePosition()};
-			std::cout << "Left Click at X: " << Mpos.x << ", Y: " << Mpos.y << endl;
+			std::cout << "Left Click at X: " << Mpos.x << ", Y: " << Mpos.y << std::endl;
 		}
 
 		if (inputSystem.GetMouseButtonDown(1)) {
 			neu::Vector2 Mpos{inputSystem.GetMousePosition()};
-			std::cout << "Mid Click at X: " << Mpos.x << ", Y: " << Mpos.y << endl;
+			std::cout << "Mid Click at X: " << Mpos.x << ", Y: " << Mpos.y << std::endl;
 		}
 
 		if (inputSystem.GetMouseButtonDown(2)) {
 			neu::Vector2 Mpos{inputSystem.GetMousePosition()};
-			std::cout << "Right Click at X: " << Mpos.x << ", Y: " << Mpos.y << endl;
+			std::cout << "Right Click at X: " << Mpos.x << ", Y: " << Mpos.y << std::endl;
 		}
 
 		renderer.SetColor(0, 0, 0, 0);
@@ -96,9 +111,11 @@ int main(int argc, char* argv[])
 
 		renderer.SetColor(255, 255, 255, 255);
 		
-		model.Draw(renderer, {500, 500}, 4.0f );
+		model.Draw(renderer, position, 4.0f );
 
 		renderer.EndFrame();
+
+		//std::this_thread::sleep_for(std::chrono::milliseconds(400));
 	}
 
 	return 0;
