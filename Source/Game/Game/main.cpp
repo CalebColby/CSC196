@@ -32,6 +32,8 @@ public:
 
 int main(int argc, char* argv[])
 {	
+	//constexpr float a = neu::DegreesToRadians(180.0f);
+
 	neu::seedRandom((unsigned int)time(nullptr));
 	neu::setFilePath("assets");
 	
@@ -57,8 +59,11 @@ int main(int argc, char* argv[])
 		stars.push_back(Star(pos, vel));
 	}
 
-	neu::Vector2 position{ 400, 300 };
+	neu::Transform transform{ { 400, 300 }, 0, 3 };
+
+	//neu::Vector2 position{ 400, 300 };
 	float speed = 500;
+	float turnRate = neu::DegreesToRadians(180);
 
 
 	//main game loop
@@ -72,13 +77,26 @@ int main(int argc, char* argv[])
 			quit = true;
 		}
 
-		neu::vec2 direction;
+		float rotate = 0;
+		if (inputSystem.GetKeyDown(SDL_SCANCODE_A)) rotate = -1;
+		if (inputSystem.GetKeyDown(SDL_SCANCODE_D)) rotate = 1;
+		transform.rotation += rotate * turnRate * neu::g_Time.GetDeltaTime();
 
-		if (inputSystem.GetKeyDown(SDL_SCANCODE_W)) direction.y = -1;
-		if (inputSystem.GetKeyDown(SDL_SCANCODE_A)) direction.x = -1;
-		if (inputSystem.GetKeyDown(SDL_SCANCODE_S)) direction.y = 1;
-		if (inputSystem.GetKeyDown(SDL_SCANCODE_D)) direction.x = 1;
-		position += direction * speed * neu::g_Time.GetDeltaTime();
+		float thrust = 0;
+		if (inputSystem.GetKeyDown(SDL_SCANCODE_W)) thrust = 1;
+		if (inputSystem.GetKeyDown(SDL_SCANCODE_S)) thrust = -1;
+
+		neu::vec2 forward = neu::vec2{ 0,-1 }.Rotate(transform.rotation);
+		transform.position += forward * speed * thrust * neu::g_Time.GetDeltaTime();
+		transform.position.x = neu::Wrap(transform.position.x, renderer.GetWidth());
+		transform.position.y = neu::Wrap(transform.position.y, renderer.GetHeight());
+
+		//neu::vec2 direction;
+		//if (inputSystem.GetKeyDown(SDL_SCANCODE_W)) direction.y = -1;
+		//if (inputSystem.GetKeyDown(SDL_SCANCODE_A)) direction.x = -1;
+		//if (inputSystem.GetKeyDown(SDL_SCANCODE_S)) direction.y = 1;
+		//if (inputSystem.GetKeyDown(SDL_SCANCODE_D)) direction.x = 1;
+		//position += direction * speed * neu::g_Time.GetDeltaTime();
 
 
 		if (inputSystem.GetMouseButtonDown(0)) {
@@ -111,7 +129,7 @@ int main(int argc, char* argv[])
 
 		renderer.SetColor(255, 255, 255, 255);
 		
-		model.Draw(renderer, position, 4.0f );
+		model.Draw(renderer, transform.position, transform.rotation, transform.scale );
 
 		renderer.EndFrame();
 

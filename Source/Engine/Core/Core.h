@@ -5,3 +5,5 @@
 #include "Time.h"
 #include "Random.h"
 #include "Vector2.h"
+#include "Transform.h"
+#include "MathUtils.h"
