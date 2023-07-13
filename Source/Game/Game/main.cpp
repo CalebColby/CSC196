@@ -2,6 +2,8 @@
 #include "Renderer/Model.h"
 #include "Renderer/Renderer.h"
 #include "Input/InputSystem.h"
+#include "Player.h"
+#include "Enemy.h"
 #include <iostream>
 #include <vector>
 #include <thread>
@@ -32,18 +34,13 @@ public:
 
 int main(int argc, char* argv[])
 {	
-	//constexpr float a = neu::DegreesToRadians(180.0f);
-
 	neu::seedRandom((unsigned int)time(nullptr));
 	neu::setFilePath("assets");
 	
+	neu::g_renderer.Initialize();
+	neu::g_renderer.CreateWindow("CSC196", 800,600);
 
-	neu::Renderer renderer;
-	renderer.Initialize();
-	renderer.CreateWindow("CSC196", 800,600);
-
-	neu::InputSystem inputSystem;
-	inputSystem.Initialize();
+	neu::g_inputSystem.Initialize();
 
 	//std::vector<neu::Vector2> points{ {-10, 5}, { 10, 5 }, { 0, -5 }, {-10, 5} };
 	neu::Model model;
@@ -53,43 +50,41 @@ int main(int argc, char* argv[])
 	std::vector<Star> stars;
 	for (size_t i = 0; i < 1000; i++)
 	{
-		neu::Vector2 pos(neu::randomf(renderer.GetWidth()), neu::randomf(renderer.GetHeight()));
+		neu::Vector2 pos(neu::randomf((float)neu::g_renderer.GetWidth()), neu::randomf((float)neu::g_renderer.GetHeight()));
 		neu::Vector2 vel(neu::randomf(100,400), neu::randomf(-200, 200));
 
 		stars.push_back(Star(pos, vel));
 	}
 
 	neu::Transform transform{ { 400, 300 }, 0, 3 };
-
-	//neu::Vector2 position{ 400, 300 };
 	float speed = 500;
-	float turnRate = neu::DegreesToRadians(180);
+	constexpr float turnRate = neu::DegreesToRadians(180);
 
+	Player player{ 200, neu::Pi, { { 400, 300 }, 0, 3 }, model };
+
+	std::vector<Enemy> enemies;
+	for (size_t i = 0; i < 200; i++)
+	{
+		Enemy enemy{ 300, neu::Pi, { { 400, 300 }, neu::randomf(neu::TwoPi), 3}, model };
+		enemies.push_back(enemy);
+	}
 
 	//main game loop
 	bool quit = false;
 	while (!quit)
 	{
+		//update Engine
 		neu::g_Time.Tick();
-		inputSystem.Update();
-		if (inputSystem.GetKeyDown(SDL_SCANCODE_ESCAPE))
+		neu::g_inputSystem.Update();
+		if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_ESCAPE))
 		{
 			quit = true;
 		}
 
-		float rotate = 0;
-		if (inputSystem.GetKeyDown(SDL_SCANCODE_A)) rotate = -1;
-		if (inputSystem.GetKeyDown(SDL_SCANCODE_D)) rotate = 1;
-		transform.rotation += rotate * turnRate * neu::g_Time.GetDeltaTime();
-
-		float thrust = 0;
-		if (inputSystem.GetKeyDown(SDL_SCANCODE_W)) thrust = 1;
-		if (inputSystem.GetKeyDown(SDL_SCANCODE_S)) thrust = -1;
-
-		neu::vec2 forward = neu::vec2{ 0,-1 }.Rotate(transform.rotation);
-		transform.position += forward * speed * thrust * neu::g_Time.GetDeltaTime();
-		transform.position.x = neu::Wrap(transform.position.x, renderer.GetWidth());
-		transform.position.y = neu::Wrap(transform.position.y, renderer.GetHeight());
+		//update Player
+		player.Update(neu::g_Time.GetDeltaTime());
+		for(auto& enemy : enemies) enemy.Update(neu::g_Time.GetDeltaTime());
+		
 
 		//neu::vec2 direction;
 		//if (inputSystem.GetKeyDown(SDL_SCANCODE_W)) direction.y = -1;
@@ -99,41 +94,42 @@ int main(int argc, char* argv[])
 		//position += direction * speed * neu::g_Time.GetDeltaTime();
 
 
-		if (inputSystem.GetMouseButtonDown(0)) {
-			neu::Vector2 Mpos{inputSystem.GetMousePosition()};
+		if (neu::g_inputSystem.GetMouseButtonDown(0)) {
+			neu::Vector2 Mpos{neu::g_inputSystem.GetMousePosition()};
 			std::cout << "Left Click at X: " << Mpos.x << ", Y: " << Mpos.y << std::endl;
 		}
 
-		if (inputSystem.GetMouseButtonDown(1)) {
-			neu::Vector2 Mpos{inputSystem.GetMousePosition()};
+		if (neu::g_inputSystem.GetMouseButtonDown(1)) {
+			neu::Vector2 Mpos{neu::g_inputSystem.GetMousePosition()};
 			std::cout << "Mid Click at X: " << Mpos.x << ", Y: " << Mpos.y << std::endl;
 		}
 
-		if (inputSystem.GetMouseButtonDown(2)) {
-			neu::Vector2 Mpos{inputSystem.GetMousePosition()};
+		if (neu::g_inputSystem.GetMouseButtonDown(2)) {
+			neu::Vector2 Mpos{neu::g_inputSystem.GetMousePosition()};
 			std::cout << "Right Click at X: " << Mpos.x << ", Y: " << Mpos.y << std::endl;
 		}
 
-		renderer.SetColor(0, 0, 0, 0);
-		renderer.BeginFrame();
+		neu::g_renderer.SetColor(0, 0, 0, 0);
+		neu::g_renderer.BeginFrame();
 		
 		//draw
 
 		for (auto& star : stars) 
 		{
-			star.Update(renderer.GetWidth(), renderer.GetHeight());
+			star.Update(neu::g_renderer.GetWidth(), neu::g_renderer.GetHeight());
 
-			renderer.SetColor(neu::random(256), neu::random(256), neu::random(256), 255);
-			renderer.DrawPoint(star.m_pos.x, star.m_pos.y);
+			neu::g_renderer.SetColor(neu::random(256), neu::random(256), neu::random(256), 255);
+			neu::g_renderer.DrawPoint(star.m_pos.x, star.m_pos.y);
 		}
 
-		renderer.SetColor(255, 255, 255, 255);
+		neu::g_renderer.SetColor(255, 255, 255, 255);
+
+		player.Draw(neu::g_renderer);
+		for (auto& enemy : enemies) enemy.Draw(neu::g_renderer);
 		
-		model.Draw(renderer, transform.position, transform.rotation, transform.scale );
+		//model.Draw(renderer, transform.position, transform.rotation, transform.scale );
 
-		renderer.EndFrame();
-
-		//std::this_thread::sleep_for(std::chrono::milliseconds(400));
+		neu::g_renderer.EndFrame();
 	}
 
 	return 0;

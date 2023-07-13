@@ -2,6 +2,7 @@
 #include <vector>
 #include "Renderer.h"
 #include <Core/Vector2.h>
+#include <Core/Transform.h>
 
 namespace neu
 {
@@ -13,6 +14,7 @@ namespace neu
 
 		bool Load(const std::string& fileName);
 		void Draw(Renderer& renderer, const vec2& position, float rotation, float scale);
+		void Draw(Renderer& renderer, const Transform& transform);
 
 	private:
 		std::vector<vec2> m_points;

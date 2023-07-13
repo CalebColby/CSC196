@@ -40,4 +40,8 @@ namespace neu
 		}
 		
 	}
+	void Model::Draw(Renderer& renderer, const Transform& transform)
+	{
+		Draw(renderer, transform.position, transform.rotation, transform.scale);
+	}
 }

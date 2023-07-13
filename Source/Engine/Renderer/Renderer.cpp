@@ -56,4 +56,7 @@ void neu::Renderer::DrawPoint(float x, float y)
 {
 	SDL_RenderDrawPointF(m_renderer, x, y);
 }
-
+namespace neu
+{
+	Renderer g_renderer;
+}

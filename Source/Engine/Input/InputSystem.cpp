@@ -50,4 +50,6 @@ namespace neu
 		m_mouseButtonState[2] = buttons & SDL_BUTTON_RMASK; // buttons [0100] & [0RML]
 
 	}
+
+	InputSystem g_inputSystem;
 }
