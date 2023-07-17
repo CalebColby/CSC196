@@ -2,6 +2,7 @@
 #include "Renderer/Model.h"
 #include "Renderer/Renderer.h"
 #include "Input/InputSystem.h"
+#include "Audio/AudioSystem.h"
 #include "Player.h"
 #include "Enemy.h"
 #include <iostream>
@@ -42,7 +43,9 @@ int main(int argc, char* argv[])
 
 	neu::g_inputSystem.Initialize();
 
-	//std::vector<neu::Vector2> points{ {-10, 5}, { 10, 5 }, { 0, -5 }, {-10, 5} };
+	neu::g_audioSystem.Initialize();
+	neu::g_audioSystem.AddAudio("hit", "Explosion.wav");
+
 	neu::Model model;
 	model.Load("Ship.txt");
 
@@ -76,6 +79,7 @@ int main(int argc, char* argv[])
 		//update Engine
 		neu::g_Time.Tick();
 		neu::g_inputSystem.Update();
+		neu::g_audioSystem.Update();
 		if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_ESCAPE))
 		{
 			quit = true;
@@ -94,19 +98,9 @@ int main(int argc, char* argv[])
 		//position += direction * speed * neu::g_Time.GetDeltaTime();
 
 
-		if (neu::g_inputSystem.GetMouseButtonDown(0)) {
-			neu::Vector2 Mpos{neu::g_inputSystem.GetMousePosition()};
-			std::cout << "Left Click at X: " << Mpos.x << ", Y: " << Mpos.y << std::endl;
-		}
-
-		if (neu::g_inputSystem.GetMouseButtonDown(1)) {
-			neu::Vector2 Mpos{neu::g_inputSystem.GetMousePosition()};
-			std::cout << "Mid Click at X: " << Mpos.x << ", Y: " << Mpos.y << std::endl;
-		}
-
-		if (neu::g_inputSystem.GetMouseButtonDown(2)) {
-			neu::Vector2 Mpos{neu::g_inputSystem.GetMousePosition()};
-			std::cout << "Right Click at X: " << Mpos.x << ", Y: " << Mpos.y << std::endl;
+		if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_SPACE) && !neu::g_inputSystem.GetPreviousKeyDown(SDL_SCANCODE_SPACE))
+		{
+			neu::g_audioSystem.PlayOneShot("hit");
 		}
 
 		neu::g_renderer.SetColor(0, 0, 0, 0);

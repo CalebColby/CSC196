@@ -1,4 +1,4 @@
-#include "player.h"
+#include "Player.h"
 #include "Input/InputSystem.h"
 
 void Player::Update(float dt)
