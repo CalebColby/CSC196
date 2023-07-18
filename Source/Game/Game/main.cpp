@@ -3,6 +3,7 @@
 #include "Renderer/Renderer.h"
 #include "Input/InputSystem.h"
 #include "Audio/AudioSystem.h"
+#include "Framework/Scene.h"
 #include "Player.h"
 #include "Enemy.h"
 #include <iostream>
@@ -35,6 +36,7 @@ public:
 
 int main(int argc, char* argv[])
 {	
+	//Initialize Engine Systems
 	neu::seedRandom((unsigned int)time(nullptr));
 	neu::setFilePath("assets");
 	
@@ -63,13 +65,14 @@ int main(int argc, char* argv[])
 	float speed = 500;
 	constexpr float turnRate = neu::DegreesToRadians(180);
 
-	Player player{ 200, neu::Pi, { { 400, 300 }, 0, 3 }, model };
+	neu::Scene scene;
 
-	std::vector<Enemy> enemies;
-	for (size_t i = 0; i < 200; i++)
+	scene.Add(new Player{ 200, neu::Pi, { { 400, 300 }, 0, 3 }, model });
+
+	for (size_t i = 0; i < 50; i++)
 	{
-		Enemy enemy{ 300, neu::Pi, { { 400, 300 }, neu::randomf(neu::TwoPi), 3}, model };
-		enemies.push_back(enemy);
+		Enemy* enemy = new Enemy{ 300, neu::Pi, { { 400, 300 }, neu::randomf(neu::TwoPi), 3}, model };
+		scene.Add(enemy);
 	}
 
 	//main game loop
@@ -80,34 +83,23 @@ int main(int argc, char* argv[])
 		neu::g_Time.Tick();
 		neu::g_inputSystem.Update();
 		neu::g_audioSystem.Update();
+		//update Scene
+		scene.Update(neu::g_Time.GetDeltaTime());
+
+		//Detect Input
 		if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_ESCAPE))
 		{
 			quit = true;
 		}
 
-		//update Player
-		player.Update(neu::g_Time.GetDeltaTime());
-		for(auto& enemy : enemies) enemy.Update(neu::g_Time.GetDeltaTime());
-		
-
-		//neu::vec2 direction;
-		//if (inputSystem.GetKeyDown(SDL_SCANCODE_W)) direction.y = -1;
-		//if (inputSystem.GetKeyDown(SDL_SCANCODE_A)) direction.x = -1;
-		//if (inputSystem.GetKeyDown(SDL_SCANCODE_S)) direction.y = 1;
-		//if (inputSystem.GetKeyDown(SDL_SCANCODE_D)) direction.x = 1;
-		//position += direction * speed * neu::g_Time.GetDeltaTime();
-
-
 		if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_SPACE) && !neu::g_inputSystem.GetPreviousKeyDown(SDL_SCANCODE_SPACE))
 		{
 			neu::g_audioSystem.PlayOneShot("hit");
 		}
-
-		neu::g_renderer.SetColor(0, 0, 0, 0);
-		neu::g_renderer.BeginFrame();
 		
 		//draw
-
+		neu::g_renderer.SetColor(0, 0, 0, 0);
+		neu::g_renderer.BeginFrame();
 		for (auto& star : stars) 
 		{
 			star.Update(neu::g_renderer.GetWidth(), neu::g_renderer.GetHeight());
@@ -117,11 +109,7 @@ int main(int argc, char* argv[])
 		}
 
 		neu::g_renderer.SetColor(255, 255, 255, 255);
-
-		player.Draw(neu::g_renderer);
-		for (auto& enemy : enemies) enemy.Draw(neu::g_renderer);
-		
-		//model.Draw(renderer, transform.position, transform.rotation, transform.scale );
+		scene.Draw(neu::g_renderer);
 
 		neu::g_renderer.EndFrame();
 	}

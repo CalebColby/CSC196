@@ -1,7 +1,7 @@
 #pragma once
-#include "Actor.h"
+#include "Framework/Actor.h"
 
-class Enemy : public Actor
+class Enemy : public neu::Actor
 {
 public:
 	Enemy(float speed, float turnRate, const neu::Transform& transform, const neu::Model& model) :

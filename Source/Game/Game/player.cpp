@@ -1,8 +1,11 @@
 #include "Player.h"
+#include "Bullet.h"
 #include "Input/InputSystem.h"
+#include "Framework/Scene.h"
 
 void Player::Update(float dt)
 {
+	//Movement
 	float rotate = 0;
 	if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_A)) rotate = -1;
 	if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_D)) rotate = 1;
@@ -16,4 +19,14 @@ void Player::Update(float dt)
 	m_transform.position += forward * m_speed * thrust * neu::g_Time.GetDeltaTime();
 	m_transform.position.x = neu::Wrap(m_transform.position.x, (float)neu::g_renderer.GetWidth());
 	m_transform.position.y = neu::Wrap(m_transform.position.y, (float)neu::g_renderer.GetHeight());
+
+	// fire weapon
+	if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_SPACE) &&
+		!neu::g_inputSystem.GetPreviousKeyDown(SDL_SCANCODE_SPACE))
+	{
+		//create bullet
+		neu::Transform transform{m_transform.position, m_transform.rotation, 1};
+		Bullet* bullet = new Bullet{400, transform, m_model };
+		m_scene->Add(bullet);
+	}
 }
