@@ -1,4 +1,5 @@
 #pragma once
+#include "Actor.h"
 #include <list>
 
 namespace neu
@@ -14,13 +15,13 @@ namespace neu
 		void Update(float dt);
 		void Draw(Renderer& renderer);
 
-		void Add(Actor* actor);
+		void Add(std::unique_ptr<Actor>);
 		void Remove(Actor* actor);
 		void RemoveAll();
 
 		friend class Actor;
 
 	private:
-		std::list<Actor*> m_actors;
+		std::list<std::unique_ptr<Actor>> m_actors;
 	};
 }

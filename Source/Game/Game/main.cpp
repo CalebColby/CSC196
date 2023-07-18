@@ -6,9 +6,11 @@
 #include "Framework/Scene.h"
 #include "Player.h"
 #include "Enemy.h"
+
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <memory>
 
 using namespace std;
 
@@ -36,6 +38,12 @@ public:
 
 int main(int argc, char* argv[])
 {	
+	{
+		std::unique_ptr<int> up = make_unique<int>(10);
+	}
+
+	neu::g_MemoryTracker.displayInfo();
+
 	//Initialize Engine Systems
 	neu::seedRandom((unsigned int)time(nullptr));
 	neu::setFilePath("assets");
@@ -47,6 +55,7 @@ int main(int argc, char* argv[])
 
 	neu::g_audioSystem.Initialize();
 	neu::g_audioSystem.AddAudio("hit", "Explosion.wav");
+	neu::g_audioSystem.AddAudio("laser", "Laser_Fire.wav");
 
 	neu::Model model;
 	model.Load("Ship.txt");
@@ -67,12 +76,13 @@ int main(int argc, char* argv[])
 
 	neu::Scene scene;
 
-	scene.Add(new Player{ 200, neu::Pi, { { 400, 300 }, 0, 3 }, model });
+	std::unique_ptr<Player> player = make_unique<Player>(200, neu::Pi, neu::Transform{ { 400, 300 }, 0, 3 }, model);
+	scene.Add(std::move(player));
 
 	for (size_t i = 0; i < 50; i++)
 	{
-		Enemy* enemy = new Enemy{ 300, neu::Pi, { { 400, 300 }, neu::randomf(neu::TwoPi), 3}, model };
-		scene.Add(enemy);
+		std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>( 300, neu::Pi, neu::Transform{ { 400, 300 }, neu::randomf(neu::TwoPi), 3}, model );
+		scene.Add(std::move(enemy));
 	}
 
 	//main game loop
@@ -92,10 +102,6 @@ int main(int argc, char* argv[])
 			quit = true;
 		}
 
-		if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_SPACE) && !neu::g_inputSystem.GetPreviousKeyDown(SDL_SCANCODE_SPACE))
-		{
-			neu::g_audioSystem.PlayOneShot("hit");
-		}
 		
 		//draw
 		neu::g_renderer.SetColor(0, 0, 0, 0);
@@ -113,6 +119,11 @@ int main(int argc, char* argv[])
 
 		neu::g_renderer.EndFrame();
 	}
+
+	stars.clear();
+	scene.RemoveAll();
+	neu::g_renderer.Shutdown();
+	neu::g_MemoryTracker.displayInfo();
 
 	return 0;
 }

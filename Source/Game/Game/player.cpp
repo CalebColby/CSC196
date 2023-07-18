@@ -26,7 +26,7 @@ void Player::Update(float dt)
 	{
 		//create bullet
 		neu::Transform transform{m_transform.position, m_transform.rotation, 1};
-		Bullet* bullet = new Bullet{400, transform, m_model };
-		m_scene->Add(bullet);
+		std::unique_ptr<Bullet> bullet = std::make_unique<Bullet>( 400.0f, transform, m_model );
+		m_scene->Add(std::move(bullet));
 	}
 }

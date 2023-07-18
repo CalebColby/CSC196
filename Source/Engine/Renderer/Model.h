@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include <Core/Vector2.h>
 #include <Core/Transform.h>
+#include <Core/Color.h>
 
 namespace neu
 {
@@ -18,5 +19,6 @@ namespace neu
 
 	private:
 		std::vector<vec2> m_points;
+		Color m_color;
 	};
 }

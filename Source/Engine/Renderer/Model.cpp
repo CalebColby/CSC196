@@ -11,6 +11,8 @@ namespace neu
 
 		std::istringstream stream(buffer);
 
+		stream >> m_color;
+
 		std::string line;
 		std::getline(stream, line);
 
@@ -30,6 +32,8 @@ namespace neu
 	void Model::Draw(Renderer& renderer, const vec2& position, float rotation, float scale)
 	{
 		if (m_points.empty()) return; 
+
+		renderer.SetColor(Color::ToInt(m_color.r), Color::ToInt(m_color.g), Color::ToInt(m_color.b), Color::ToInt(m_color.a));
 
 		for (int i = 0; i < m_points.size() - 1; i++)
 		{
