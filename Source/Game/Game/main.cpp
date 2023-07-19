@@ -10,7 +10,6 @@
 #include <iostream>
 #include <vector>
 #include <thread>
-#include <memory>
 
 using namespace std;
 
@@ -38,13 +37,9 @@ public:
 
 int main(int argc, char* argv[])
 {	
-	{
-		std::unique_ptr<int> up = make_unique<int>(10);
-	}
-
-	neu::g_MemoryTracker.displayInfo();
-
 	//Initialize Engine Systems
+	neu::MemoryTracker::Initialize();
+
 	neu::seedRandom((unsigned int)time(nullptr));
 	neu::setFilePath("assets");
 	
@@ -79,9 +74,11 @@ int main(int argc, char* argv[])
 	std::unique_ptr<Player> player = make_unique<Player>(200, neu::Pi, neu::Transform{ { 400, 300 }, 0, 3 }, model);
 	scene.Add(std::move(player));
 
-	for (size_t i = 0; i < 50; i++)
+	for (size_t i = 0; i < 25; i++)
 	{
-		std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>( 300, neu::Pi, neu::Transform{ { 400, 300 }, neu::randomf(neu::TwoPi), 3}, model );
+		std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>( neu::randomf(75.0f, 150.0f), neu::Pi, 
+			neu::Transform{ { neu::randomf(neu::g_renderer.GetWidth()), neu::randomf(neu::g_renderer.GetHeight()) }, 
+			neu::randomf(neu::TwoPi), 3}, model);
 		scene.Add(std::move(enemy));
 	}
 
@@ -123,7 +120,6 @@ int main(int argc, char* argv[])
 	stars.clear();
 	scene.RemoveAll();
 	neu::g_renderer.Shutdown();
-	neu::g_MemoryTracker.displayInfo();
 
 	return 0;
 }

@@ -13,13 +13,17 @@ namespace neu
 			m_model{ model }
 		{}
 
-		virtual void Update(float dt) = 0;
+		virtual void Update(float dt);
 		virtual void Draw(neu::Renderer& renderer);
 
 		friend class Scene;
 
-	protected:
 		neu::Transform m_transform;
+	protected:
+		bool m_destroyed = false;
+		float m_lifespan = -1.0f;
+
+		
 		neu::Model m_model;
 		class Scene* m_scene = nullptr;
 	};

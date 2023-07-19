@@ -5,6 +5,8 @@
 
 void Player::Update(float dt)
 {
+	Actor::Update(dt);
+
 	//Movement
 	float rotate = 0;
 	if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_A)) rotate = -1;

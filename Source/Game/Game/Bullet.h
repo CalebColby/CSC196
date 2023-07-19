@@ -10,6 +10,7 @@ public:
 		m_speed{ speed }
 	{
 		neu::g_audioSystem.PlayOneShot("laser");
+		m_lifespan = 1.0f;
 	}
 
 
