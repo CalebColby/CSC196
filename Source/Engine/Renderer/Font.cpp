@@ -10,7 +10,7 @@ namespace neu
 
 	Font::~Font()
 	{
-		if (m_ttfFont) TTF_CloseFont(m_ttfFont);
+		//if(m_ttfFont) TTF_CloseFont(m_ttfFont);
 	}
 
 	void Font::Load(const std::string& filename, int fontSize)

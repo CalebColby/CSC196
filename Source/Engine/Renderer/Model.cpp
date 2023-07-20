@@ -48,4 +48,17 @@ namespace neu
 	{
 		Draw(renderer, transform.position, transform.rotation, transform.scale);
 	}
+
+	float Model::GetRadius()
+	{
+		if (m_radius) return m_radius;
+
+		for (auto point : m_points)
+		{
+			float length = point.Length();
+			m_radius = Max(length, m_radius);
+		}
+
+		return m_radius;
+	}
 }

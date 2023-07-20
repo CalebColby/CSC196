@@ -29,6 +29,21 @@ void Player::Update(float dt)
 		//create bullet
 		neu::Transform transform{m_transform.position, m_transform.rotation, 1};
 		std::unique_ptr<Bullet> bullet = std::make_unique<Bullet>( 400.0f, transform, m_model );
+		bullet->m_tag = "PlayerBullet";
 		m_scene->Add(std::move(bullet));
+	}
+
+	if (m_health <= 0)
+	{
+		neu::g_audioSystem.PlayOneShot("hit");
+		m_destroyed = true;
+	}
+}
+
+void Player::OnCollision(Actor* other)
+{
+	if (other->m_tag == "EnemyBullet")
+	{
+		m_health -= neu::randomf(0.5f, 5.5f);
 	}
 }

@@ -1,5 +1,5 @@
 #include "Core/Core.h"
-#include "Renderer/Model.h"
+#include "Renderer/ModelManager.h"
 #include "Renderer/Renderer.h"
 #include "Input/InputSystem.h"
 #include "Audio/AudioSystem.h"
@@ -54,9 +54,6 @@ int main(int argc, char* argv[])
 	neu::g_audioSystem.AddAudio("hit", "Explosion.wav");
 	neu::g_audioSystem.AddAudio("laser", "Laser_Fire.wav");
 
-	neu::Model model;
-	model.Load("Ship.txt");
-
 	std::shared_ptr<neu::Font> font = std::make_shared<neu::Font>("PaladinFLF.ttf", 24);
 
 	std::unique_ptr<neu::Text> text = std::make_unique<neu::Text>(font);
@@ -77,14 +74,16 @@ int main(int argc, char* argv[])
 
 	neu::Scene scene;
 
-	std::unique_ptr<Player> player = make_unique<Player>(200, neu::Pi, neu::Transform{ { 400, 300 }, 0, 3 }, model);
+	std::unique_ptr<Player> player = make_unique<Player>(200, neu::Pi, neu::Transform{ { 400, 300 }, 0, 3 }, neu::g_ModelManager.Get("Ship.txt"));
+	player->m_tag = "Player";
 	scene.Add(std::move(player));
 
 	for (size_t i = 0; i < 25; i++)
 	{
 		std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>( neu::randomf(75.0f, 150.0f), neu::Pi, 
 			neu::Transform{ { neu::randomf(neu::g_renderer.GetWidth()), neu::randomf(neu::g_renderer.GetHeight()) }, 
-			neu::randomf(neu::TwoPi), 3}, model);
+			neu::randomf(neu::TwoPi), 3}, neu::g_ModelManager.Get("EnemyShip.txt"));
+		enemy->m_tag = "Enemy";
 		scene.Add(std::move(enemy));
 	}
 

@@ -9,3 +9,8 @@ void Bullet::Update(float dt)
 	m_transform.position.x = neu::Wrap(m_transform.position.x, (float)neu::g_renderer.GetWidth());
 	m_transform.position.y = neu::Wrap(m_transform.position.y, (float)neu::g_renderer.GetHeight());
 }
+
+void Bullet::OnCollision(Actor* other)
+{
+	m_destroyed = true;
+}
