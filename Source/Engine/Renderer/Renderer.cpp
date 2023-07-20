@@ -1,8 +1,10 @@
 #include "Renderer.h"
+#include "SDL2-2.28.1/include/SDL_ttf.h"
 
 bool neu::Renderer::Initialize()
 {
 	SDL_Init(SDL_INIT_VIDEO);
+	TTF_Init();
 
 	return true;
 }
@@ -11,6 +13,7 @@ void neu::Renderer::Shutdown()
 {
 	SDL_DestroyRenderer(m_renderer);
 	SDL_DestroyWindow(m_window);
+	TTF_Quit();
 }
 
 void neu::Renderer::CreateWindow(const std::string& title, int width, int height)

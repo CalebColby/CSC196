@@ -26,6 +26,8 @@ namespace neu
 		int GetWidth() const { return m_width; };
 		int GetHeight() const { return m_height; };
 
+		friend class Text;
+
 	private:
 		int m_width;
 		int m_height;

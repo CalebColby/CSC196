@@ -10,6 +10,8 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <Renderer/Font.h>
+#include <Renderer/Text.h>
 
 using namespace std;
 
@@ -55,6 +57,10 @@ int main(int argc, char* argv[])
 	neu::Model model;
 	model.Load("Ship.txt");
 
+	std::shared_ptr<neu::Font> font = std::make_shared<neu::Font>("PaladinFLF.ttf", 24);
+
+	std::unique_ptr<neu::Text> text = std::make_unique<neu::Text>(font);
+	text->Create(neu::g_renderer, "NEUMONT", neu::Color{ 1, 1, 1, 1 });
 
 	std::vector<Star> stars;
 	for (size_t i = 0; i < 1000; i++)
@@ -113,7 +119,7 @@ int main(int argc, char* argv[])
 
 		neu::g_renderer.SetColor(255, 255, 255, 255);
 		scene.Draw(neu::g_renderer);
-
+		text->Draw(neu::g_renderer, 400, 300);
 		neu::g_renderer.EndFrame();
 	}
 
