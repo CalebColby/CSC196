@@ -21,6 +21,7 @@ namespace neu
 		float GetRadius() { return m_model->GetRadius()* m_transform.scale; }
 
 		friend class Scene;
+		friend class Game;
 
 		neu::Transform m_transform;
 		std::string m_tag;
@@ -31,5 +32,6 @@ namespace neu
 
 		std::shared_ptr<Model> m_model;
 		class Scene* m_scene = nullptr;
+		class Game* m_game = nullptr;
 	};
 }

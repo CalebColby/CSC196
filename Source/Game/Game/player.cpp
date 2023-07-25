@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Bullet.h"
+#include "SpaceGame.h"
 #include "Input/InputSystem.h"
 #include "Framework/Scene.h"
 
@@ -45,5 +46,12 @@ void Player::OnCollision(Actor* other)
 	if (other->m_tag == "EnemyBullet")
 	{
 		m_health -= neu::randomf(0.5f, 5.5f);
+	}
+
+	if (other->m_tag == "Enemy")
+	{
+		m_game->SetLives(m_game->GetLives() - 1);
+		m_destroyed = true;
+		dynamic_cast<SpaceGame*>(m_game)->SetState(SpaceGame::eState::PlayerDead);
 	}
 }

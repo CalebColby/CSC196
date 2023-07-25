@@ -14,6 +14,8 @@ public:
 	void Update(float dt) override;
 	void OnCollision(Actor* other) override;
 
+	friend class SpaceGame;
+
 private:
 	float m_speed = 0;
 	float m_turnRate = 0;

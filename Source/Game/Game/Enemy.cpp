@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include "Player.h"
 #include "Bullet.h"
+#include "SpaceGame.h"
 #include "Framework/Scene.h"
 #include "Input/InputSystem.h"
 
@@ -35,5 +36,9 @@ void Enemy::Update(float dt)
 
 void Enemy::OnCollision(Actor* other)
 {
-	if(other->m_tag == "PlayerBullet") m_destroyed = true;
+	if (other->m_tag == "PlayerBullet")
+	{
+		m_destroyed = true;
+		m_game->AddPoints(100);
+	}
 }

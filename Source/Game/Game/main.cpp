@@ -6,6 +6,7 @@
 #include "Framework/Scene.h"
 #include "Player.h"
 #include "Enemy.h"
+#include "SpaceGame.h"
 
 #include <iostream>
 #include <vector>
@@ -41,7 +42,6 @@ int main(int argc, char* argv[])
 {	
 	//Initialize Engine Systems
 	neu::MemoryTracker::Initialize();
-
 	neu::seedRandom((unsigned int)time(nullptr));
 	neu::setFilePath("assets");
 	
@@ -49,15 +49,10 @@ int main(int argc, char* argv[])
 	neu::g_renderer.CreateWindow("CSC196", 800,600);
 
 	neu::g_inputSystem.Initialize();
-
 	neu::g_audioSystem.Initialize();
-	neu::g_audioSystem.AddAudio("hit", "Explosion.wav");
-	neu::g_audioSystem.AddAudio("laser", "Laser_Fire.wav");
 
-	std::shared_ptr<neu::Font> font = std::make_shared<neu::Font>("PaladinFLF.ttf", 24);
-
-	std::unique_ptr<neu::Text> text = std::make_unique<neu::Text>(font);
-	text->Create(neu::g_renderer, "NEUMONT", neu::Color{ 1, 1, 1, 1 });
+	auto game = make_unique<SpaceGame>();
+	game->Initialize();
 
 	std::vector<Star> stars;
 	for (size_t i = 0; i < 1000; i++)
@@ -68,25 +63,6 @@ int main(int argc, char* argv[])
 		stars.push_back(Star(pos, vel));
 	}
 
-	neu::Transform transform{ { 400, 300 }, 0, 3 };
-	float speed = 500;
-	constexpr float turnRate = neu::DegreesToRadians(180);
-
-	neu::Scene scene;
-
-	std::unique_ptr<Player> player = make_unique<Player>(200, neu::Pi, neu::Transform{ { 400, 300 }, 0, 3 }, neu::g_ModelManager.Get("Ship.txt"));
-	player->m_tag = "Player";
-	scene.Add(std::move(player));
-
-	for (size_t i = 0; i < 25; i++)
-	{
-		std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>( neu::randomf(75.0f, 150.0f), neu::Pi, 
-			neu::Transform{ { neu::randomf(neu::g_renderer.GetWidth()), neu::randomf(neu::g_renderer.GetHeight()) }, 
-			neu::randomf(neu::TwoPi), 3}, neu::g_ModelManager.Get("EnemyShip.txt"));
-		enemy->m_tag = "Enemy";
-		scene.Add(std::move(enemy));
-	}
-
 	//main game loop
 	bool quit = false;
 	while (!quit)
@@ -95,16 +71,14 @@ int main(int argc, char* argv[])
 		neu::g_Time.Tick();
 		neu::g_inputSystem.Update();
 		neu::g_audioSystem.Update();
-		//update Scene
-		scene.Update(neu::g_Time.GetDeltaTime());
-
-		//Detect Input
 		if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_ESCAPE))
 		{
 			quit = true;
 		}
 
-		
+		//update Game
+		game->Update(neu::g_Time.GetDeltaTime());
+
 		//draw
 		neu::g_renderer.SetColor(0, 0, 0, 0);
 		neu::g_renderer.BeginFrame();
@@ -116,14 +90,14 @@ int main(int argc, char* argv[])
 			neu::g_renderer.DrawPoint(star.m_pos.x, star.m_pos.y);
 		}
 
-		neu::g_renderer.SetColor(255, 255, 255, 255);
-		scene.Draw(neu::g_renderer);
-		text->Draw(neu::g_renderer, 400, 300);
+		game->Draw(neu::g_renderer);
+
+
 		neu::g_renderer.EndFrame();
 	}
 
 	stars.clear();
-	scene.RemoveAll();
+	game->Shutdown();
 	neu::g_renderer.Shutdown();
 
 	return 0;
