@@ -1,6 +1,9 @@
 #include "Core/Core.h"
 #include "Renderer/ModelManager.h"
 #include "Renderer/Renderer.h"
+#include "Renderer/ParticleSystem.h"
+#include "Renderer/Font.h"
+#include "Renderer/Text.h"
 #include "Input/InputSystem.h"
 #include "Audio/AudioSystem.h"
 #include "Framework/Scene.h"
@@ -11,8 +14,6 @@
 #include <iostream>
 #include <vector>
 #include <thread>
-#include <Renderer/Font.h>
-#include <Renderer/Text.h>
 
 using namespace std;
 
@@ -71,10 +72,8 @@ int main(int argc, char* argv[])
 		neu::g_Time.Tick();
 		neu::g_inputSystem.Update();
 		neu::g_audioSystem.Update();
-		if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_ESCAPE))
-		{
-			quit = true;
-		}
+		neu::g_particleSystem.Update(neu::g_Time.GetDeltaTime());
+		if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_ESCAPE)) quit = true;
 
 		//update Game
 		game->Update(neu::g_Time.GetDeltaTime());
@@ -91,7 +90,7 @@ int main(int argc, char* argv[])
 		}
 
 		game->Draw(neu::g_renderer);
-
+		neu::g_particleSystem.Draw(neu::g_renderer);
 
 		neu::g_renderer.EndFrame();
 	}

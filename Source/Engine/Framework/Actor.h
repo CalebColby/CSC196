@@ -9,6 +9,9 @@ namespace neu
 	{
 	public:
 		Actor() = default;
+		Actor(const neu::Transform& transform) :
+			m_transform{ transform }
+		{}
 		Actor(const neu::Transform& transform, std::shared_ptr<Model> model) :
 			m_transform{ transform },
 			m_model{ model }
@@ -18,7 +21,7 @@ namespace neu
 		virtual void Draw(neu::Renderer& renderer);
 		virtual void OnCollision(Actor* other) {}
 
-		float GetRadius() { return m_model->GetRadius()* m_transform.scale; }
+		float GetRadius() { return (m_model) ? m_model->GetRadius() * m_transform.scale : 0; }
 
 		friend class Scene;
 		friend class Game;
