@@ -16,10 +16,16 @@ bool SpaceGame::Initialize()
 	// create font / text objects
 	m_font = std::make_shared<neu::Font>("PaladinFLF.ttf", 24);
 	m_scoreText = std::make_unique<neu::Text>(m_font);
-	m_scoreText->Create(neu::g_renderer, "SCORE 0000", neu::Color{ 1, 0, 1, 1 });
+	m_scoreText->Create(neu::g_renderer, "SCORE 0000", neu::Color{ 1, 1, 1, 1 });
 
 	m_titleText = std::make_unique<neu::Text>(m_font);
 	m_titleText->Create(neu::g_renderer, "AZTEROIDS", neu::Color{ 1, 1, 1, 1 });
+
+	m_gameOverText = std::make_unique<neu::Text>(m_font);
+	m_gameOverText->Create(neu::g_renderer, "Game Over", neu::Color{ 1, 1, 1, 1 });
+
+	m_livesText = std::make_unique<neu::Text>(m_font);
+	m_livesText->Create(neu::g_renderer, "X Lives Left", neu::Color{ 1, 1, 1, 1 });
 
 	// load audio
 	neu::g_audioSystem.AddAudio("hit", "Explosion.wav");
@@ -37,23 +43,6 @@ void SpaceGame::Shutdown()
 
 void SpaceGame::Update(float dt)
 {
-	neu::EmitterData data;
-	data.burst = true;
-	data.burstCount = 100;
-	data.spawnRate = 200;
-	data.angle = 0;
-	data.angleRange = neu::Pi;
-	data.lifetimeMin = 0.5f;
-	data.lifetimeMin = 1.5f;
-	data.speedMin = 50;
-	data.speedMax = 250;
-	data.damping = 0.5f;
-	data.color = neu::Color{ 1, 0, 0, 1 };
-	neu::Transform transform{ { neu::g_inputSystem.GetMousePosition() }, 0, 1 };
-	auto emitter = std::make_unique<neu::Emitter>(transform, data);
-	emitter->m_lifespan = 1.0f;
-	m_scene->Add(std::move(emitter));
-
 	switch (m_state)
 	{
 	case SpaceGame::eState::Title:
@@ -72,9 +61,10 @@ void SpaceGame::Update(float dt)
 	case SpaceGame::eState::StartLevel:
 		m_scene->RemoveAll();
 		{
-			std::unique_ptr<Player> player = std::make_unique<Player>(200.0f, neu::Pi, neu::Transform{ { 400, 300 }, 0, 4 }, neu::g_ModelManager.Get("Ship.txt"));
+			std::unique_ptr<Player> player = std::make_unique<Player>(20.0f, neu::Pi, neu::Transform{ { 400, 300 }, 0, 4 }, neu::g_ModelManager.Get("Ship.txt"));
 			player->m_tag = "Player";
 			player->m_game = this;
+			player->SetDamping(0.9f);
 			m_scene->Add(std::move(player));
 		}
 		m_state = eState::Game;
@@ -90,18 +80,31 @@ void SpaceGame::Update(float dt)
 			m_scene->Add(std::move(enemy));
 		}
 		break;
+	case eState::PlayerDeadStart:
+		m_stateTimer = 3;
+		if (m_lives <= 0) m_state = eState::GameOver;
+		else m_state = eState::PlayerDead;
+		break;
 	case SpaceGame::eState::PlayerDead:
-		if (m_lives == 0) m_state = eState::GameOver;
-		else m_state = eState::StartLevel;
-
+		m_stateTimer -= dt;
+		if (m_stateTimer <= 0)
+		{
+			m_state = eState::StartLevel;
+		}
 		break;
 	case SpaceGame::eState::GameOver:
+		m_stateTimer -= dt;
+		if (m_stateTimer <= 0)
+		{
+			m_scene->RemoveAll();
+			m_state = eState::Title;
+		}
 		break;
 	default:
 		break;
 	}
 
-	m_scoreText->Create(neu::g_renderer, std::to_string(m_score), { 1, 1, 1, 1 });
+	m_scoreText->Create(neu::g_renderer, "Score: " + std::to_string(m_score), {1, 1, 1, 1});
 	m_scene->Update(dt);
 }
 
@@ -111,7 +114,22 @@ void SpaceGame::Draw(neu::Renderer& renderer)
 	{
 		m_titleText->Draw(renderer, 400, 300);
 	}
+	else 
+	{
+		m_scoreText->Draw(renderer, 10, 10);
+	}
 
-	m_scoreText->Draw(renderer, 40, 20);
+	if (m_state == eState::GameOver)
+	{
+		m_gameOverText->Draw(renderer, 400, 300);
+	}
+
+	if (m_state == eState::PlayerDead)
+	{
+		m_livesText->Create(neu::g_renderer, ((m_lives == 1) ? "1 Life Left" : std::to_string(m_lives) + " Lives Left"), { 1, 1, 1, 1 });
+		m_livesText->Draw(renderer, 400, 300);
+	}
+
+	
 	m_scene->Draw(renderer);
 }

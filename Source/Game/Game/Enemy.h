@@ -13,7 +13,6 @@ public:
 		m_fireTimer = m_fireRate;
 	}
 
-
 	void Update(float dt) override;
 	void OnCollision(Actor* other) override;
 

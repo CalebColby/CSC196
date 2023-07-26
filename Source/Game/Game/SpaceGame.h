@@ -13,7 +13,9 @@ public:
 		StartLevel,
 		Game,
 		PlayerDead,
-		GameOver
+		PlayerDeadStart,
+		GameOver,
+		GameOverStart,
 	};
 
 public:
@@ -30,7 +32,11 @@ private:
 	float m_spawnTimer = 0;
 	float m_spawnTime = 3;
 
+	float m_stateTimer = 0;
+
 	std::shared_ptr<neu::Font> m_font;
 	std::unique_ptr<neu::Text> m_scoreText;
 	std::unique_ptr<neu::Text> m_titleText;
+	std::unique_ptr<neu::Text> m_gameOverText;
+	std::unique_ptr<neu::Text> m_livesText;
 };

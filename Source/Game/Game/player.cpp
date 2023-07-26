@@ -12,14 +12,16 @@ void Player::Update(float dt)
 	float rotate = 0;
 	if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_A)) rotate = -1;
 	if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_D)) rotate = 1;
-	m_transform.rotation += rotate * m_turnRate * neu::g_Time.GetDeltaTime();
+	m_transform.rotation += rotate * m_turnRate * dt;
 
 	float thrust = 0;
 	if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_W)) thrust = 1;
 	if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_S)) thrust = -1;
 
 	neu::vec2 forward = neu::vec2{ 0,-1 }.Rotate(m_transform.rotation);
-	m_transform.position += forward * m_speed * thrust * neu::g_Time.GetDeltaTime();
+	AddForce(forward * m_speed * thrust);
+
+	//m_transform.position += forward * m_speed * thrust * neu::g_Time.GetDeltaTime();
 	m_transform.position.x = neu::Wrap(m_transform.position.x, (float)neu::g_renderer.GetWidth());
 	m_transform.position.y = neu::Wrap(m_transform.position.y, (float)neu::g_renderer.GetHeight());
 
@@ -28,11 +30,25 @@ void Player::Update(float dt)
 		!neu::g_inputSystem.GetPreviousKeyDown(SDL_SCANCODE_SPACE))
 	{
 		//create bullet
-		neu::Transform transform{m_transform.position, m_transform.rotation, 1};
-		std::unique_ptr<Bullet> bullet = std::make_unique<Bullet>( 400.0f, transform, m_model );
+		neu::Transform transform1{m_transform.position, m_transform.rotation, 1};
+		std::unique_ptr<Bullet> bullet = std::make_unique<Bullet>( 400.0f, transform1, m_model );
+		bullet->m_tag = "PlayerBullet";
+		m_scene->Add(std::move(bullet));
+
+		//create bullet
+		neu::Transform transform2{m_transform.position, m_transform.rotation + neu::DegreesToRadians(15), 1};
+		bullet = std::make_unique<Bullet>(400.0f, transform2, m_model);
+		bullet->m_tag = "PlayerBullet";
+		m_scene->Add(std::move(bullet));
+
+		//create bullet
+		neu::Transform transform3{m_transform.position, m_transform.rotation + neu::DegreesToRadians(-15), 1};
+		bullet = std::make_unique<Bullet>(400.0f, transform3, m_model);
 		bullet->m_tag = "PlayerBullet";
 		m_scene->Add(std::move(bullet));
 	}
+
+	neu::g_Time.SetTimeScale(neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_T) ? 0.5 : 1);
 
 	if (m_health <= 0)
 	{
@@ -52,6 +68,6 @@ void Player::OnCollision(Actor* other)
 	{
 		m_game->SetLives(m_game->GetLives() - 1);
 		m_destroyed = true;
-		dynamic_cast<SpaceGame*>(m_game)->SetState(SpaceGame::eState::PlayerDead);
+		dynamic_cast<SpaceGame*>(m_game)->SetState(SpaceGame::eState::PlayerDeadStart);
 	}
 }

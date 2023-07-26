@@ -26,10 +26,12 @@ namespace neu
 	{
 	public:
 		Emitter() = default;
-		Emitter(const Transform& transform, const EmitterData& data) :
+		Emitter(const Transform& transform, const EmitterData& data, float lifespan = -1.0f) :
 			Actor{ transform },
 			m_data{ data }
-		{}
+		{
+			m_lifespan = lifespan;
+		}
 
 		void Update(float dt);
 		void Draw(neu::Renderer& renderer);
