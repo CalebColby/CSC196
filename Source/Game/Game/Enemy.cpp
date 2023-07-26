@@ -49,6 +49,7 @@ void Enemy::OnCollision(Actor* other)
 	{
 		m_destroyed = true;
 		m_game->AddPoints(100);
+		neu::g_audioSystem.PlayOneShot("hit");
 		//Destruction Particles
 		neu::EmitterData data;
 		data.burst = true;

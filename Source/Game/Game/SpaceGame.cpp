@@ -19,7 +19,7 @@ bool SpaceGame::Initialize()
 	m_scoreText->Create(neu::g_renderer, "SCORE 0000", neu::Color{ 1, 1, 1, 1 });
 
 	m_titleText = std::make_unique<neu::Text>(m_font);
-	m_titleText->Create(neu::g_renderer, "AZTEROIDS", neu::Color{ 1, 1, 1, 1 });
+	m_titleText->Create(neu::g_renderer, "Star Field", neu::Color{ 1, 1, 1, 1 });
 
 	m_gameOverText = std::make_unique<neu::Text>(m_font);
 	m_gameOverText->Create(neu::g_renderer, "Game Over", neu::Color{ 1, 1, 1, 1 });
@@ -30,6 +30,9 @@ bool SpaceGame::Initialize()
 	// load audio
 	neu::g_audioSystem.AddAudio("hit", "Explosion.wav");
 	neu::g_audioSystem.AddAudio("laser", "Laser_Fire.wav");
+	neu::g_audioSystem.AddAudio("music", "Music.wav");
+
+	neu::g_audioSystem.PlayOneShot("music", true);
 
 	// create scene
 	m_scene = std::make_unique<neu::Scene>();
@@ -126,7 +129,7 @@ void SpaceGame::Draw(neu::Renderer& renderer)
 
 	if (m_state == eState::PlayerDead)
 	{
-		m_livesText->Create(neu::g_renderer, ((m_lives == 1) ? "1 Life Left" : std::to_string(m_lives) + " Lives Left"), { 1, 1, 1, 1 });
+		m_livesText->Create(neu::g_renderer, ((m_lives == 1) ? "1 Life Remaining" : std::to_string(m_lives) + " Lives Remaining"), { 1, 1, 1, 1 });
 		m_livesText->Draw(renderer, 400, 300);
 	}
 
