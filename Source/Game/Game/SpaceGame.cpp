@@ -3,6 +3,7 @@
 #include "Enemy.h"
 
 #include "Framework/Scene.h"
+#include "Framework/Emitter.h"
 
 #include "Audio/AudioSystem.h"
 #include "Input/InputSystem.h"
@@ -13,7 +14,7 @@
 bool SpaceGame::Initialize()
 {
 	// create font / text objects
-	m_font = std::make_shared<neu::Font>("arcadeclassic.ttf", 24);
+	m_font = std::make_shared<neu::Font>("PaladinFLF.ttf", 24);
 	m_scoreText = std::make_unique<neu::Text>(m_font);
 	m_scoreText->Create(neu::g_renderer, "SCORE 0000", neu::Color{ 1, 0, 1, 1 });
 
@@ -36,6 +37,23 @@ void SpaceGame::Shutdown()
 
 void SpaceGame::Update(float dt)
 {
+	neu::EmitterData data;
+	data.burst = true;
+	data.burstCount = 100;
+	data.spawnRate = 200;
+	data.angle = 0;
+	data.angleRange = neu::Pi;
+	data.lifetimeMin = 0.5f;
+	data.lifetimeMin = 1.5f;
+	data.speedMin = 50;
+	data.speedMax = 250;
+	data.damping = 0.5f;
+	data.color = neu::Color{ 1, 0, 0, 1 };
+	neu::Transform transform{ { neu::g_inputSystem.GetMousePosition() }, 0, 1 };
+	auto emitter = std::make_unique<neu::Emitter>(transform, data);
+	emitter->m_lifespan = 1.0f;
+	m_scene->Add(std::move(emitter));
+
 	switch (m_state)
 	{
 	case SpaceGame::eState::Title:

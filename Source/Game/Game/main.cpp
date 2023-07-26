@@ -2,8 +2,6 @@
 #include "Renderer/ModelManager.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/ParticleSystem.h"
-#include "Renderer/Font.h"
-#include "Renderer/Text.h"
 #include "Input/InputSystem.h"
 #include "Audio/AudioSystem.h"
 #include "Framework/Scene.h"

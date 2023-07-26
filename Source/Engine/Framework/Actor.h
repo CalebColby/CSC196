@@ -25,6 +25,7 @@ namespace neu
 
 		friend class Scene;
 		friend class Game;
+		friend class SpaceGame;
 
 		neu::Transform m_transform;
 		std::string m_tag;
