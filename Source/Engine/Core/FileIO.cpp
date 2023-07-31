@@ -45,4 +45,15 @@ namespace neu {
 
 		return true;
 	}
+	bool overwriteFile(const std::filesystem::path& path, std::string& saveData)
+	{
+		if (!fileExists(path)) return false;
+
+		std::ofstream stream(path);
+		stream.write(saveData.data(), saveData.size());
+		stream.close();
+		
+		
+		return true;
+	}
 }

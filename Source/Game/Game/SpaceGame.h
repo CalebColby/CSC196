@@ -31,6 +31,7 @@ private:
 	eState m_state = eState::Title;
 	float m_spawnTimer = 0;
 	float m_spawnTime = 3;
+	size_t m_highScore = 0;
 
 	float m_stateTimer = 0;
 

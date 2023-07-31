@@ -45,11 +45,21 @@ void Enemy::Update(float dt)
 
 void Enemy::OnCollision(Actor* other)
 {
-	if (other->m_tag == "PlayerBullet")
+	if (other->m_tag == "PlayerBullet" || other->m_tag == "RocketBullet" || other->m_tag == "Rocket")
 	{
 		m_destroyed = true;
-		m_game->AddPoints(100);
+		m_game->AddPoints(other->m_tag == "PlayerBullet" ? 100 : (other->m_tag == "Rocket" ? 50 : 200)); 
+		//The Rocket Itself gives enough points to refund its cost on hit, but chain kills from the rockets bullet spread give enough points for 4 rockets 
+		//and are what make the rocket worth using if one is going for a high score
 		neu::g_audioSystem.PlayOneShot("hit");
+		//Potintially Drop Power Up
+		if (neu::random(101) < 25)
+		{
+			auto player = m_scene->GetActor<Player>();
+			if (player) player->PowerUp();
+		}
+
+
 		//Destruction Particles
 		neu::EmitterData data;
 		data.burst = true;

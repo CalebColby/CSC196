@@ -1,8 +1,10 @@
 #include "Player.h"
 #include "Bullet.h"
+#include "Rocket.h"
 #include "SpaceGame.h"
 #include "Input/InputSystem.h"
 #include "Framework/Scene.h"
+#include "Renderer/ModelManager.h"
 
 void Player::Update(float dt)
 {
@@ -35,17 +37,35 @@ void Player::Update(float dt)
 		bullet->m_tag = "PlayerBullet";
 		m_scene->Add(std::move(bullet));
 
-		//create bullet
-		neu::Transform transform2{m_transform.position, m_transform.rotation + neu::DegreesToRadians(15), 1};
-		bullet = std::make_unique<Bullet>(400.0f, transform2, m_model);
-		bullet->m_tag = "PlayerBullet";
-		m_scene->Add(std::move(bullet));
+		if (m_poweredUp)
+		{
+			//create bullet
+			neu::Transform transform2{m_transform.position, m_transform.rotation + neu::DegreesToRadians(15), 1};
+			bullet = std::make_unique<Bullet>(400.0f, transform2, m_model);
+			bullet->m_tag = "PlayerBullet";
+			m_scene->Add(std::move(bullet));
 
-		//create bullet
-		neu::Transform transform3{m_transform.position, m_transform.rotation + neu::DegreesToRadians(-15), 1};
-		bullet = std::make_unique<Bullet>(400.0f, transform3, m_model);
-		bullet->m_tag = "PlayerBullet";
-		m_scene->Add(std::move(bullet));
+			//create bullet
+			neu::Transform transform3{m_transform.position, m_transform.rotation + neu::DegreesToRadians(-15), 1};
+			bullet = std::make_unique<Bullet>(400.0f, transform3, m_model);
+			bullet->m_tag = "PlayerBullet";
+			m_scene->Add(std::move(bullet));
+		}
+	}
+
+	//fire Rocket
+	if (neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_R) &&
+		!neu::g_inputSystem.GetPreviousKeyDown(SDL_SCANCODE_R) && 
+		m_game->GetScore() >= 50)
+	{
+		//create rocket
+		neu::Transform transform{m_transform.position, m_transform.rotation + neu::DegreesToRadians(180), m_transform.scale};
+		std::unique_ptr<Rocket> rocket = std::make_unique<Rocket>(m_speed * 1.5, transform, neu::g_ModelManager.Get("Rocket.txt"));
+		rocket->m_tag = "Rocket";
+		rocket->m_scene = m_scene;
+		m_scene->Add(std::move(rocket));
+		//firing Rockets costs Score
+		m_game->AddPoints(-50);
 	}
 
 	neu::g_Time.SetTimeScale(neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_T) ? 0.5 : 1);
@@ -53,6 +73,7 @@ void Player::Update(float dt)
 	if (m_health <= 0)
 	{
 		neu::g_audioSystem.PlayOneShot("hit");
+		m_game->SetLives(m_game->GetLives() - 1);
 		m_destroyed = true;
 	}
 }
@@ -69,5 +90,14 @@ void Player::OnCollision(Actor* other)
 		m_game->SetLives(m_game->GetLives() - 1);
 		m_destroyed = true;
 		dynamic_cast<SpaceGame*>(m_game)->SetState(SpaceGame::eState::PlayerDeadStart);
+	}
+}
+
+void Player::PowerUp()
+{
+	if (!m_poweredUp)
+	{
+		m_poweredUp = true;
+		neu::g_audioSystem.PlayOneShot("PowerUp");
 	}
 }

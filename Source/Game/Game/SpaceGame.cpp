@@ -27,16 +27,24 @@ bool SpaceGame::Initialize()
 	m_livesText = std::make_unique<neu::Text>(m_font);
 	m_livesText->Create(neu::g_renderer, "X Lives Left", neu::Color{ 1, 1, 1, 1 });
 
+	//Load HighScore
+	std::string buffer;
+	neu::readFile("HighScore.txt", buffer);
+	m_highScore = static_cast<size_t>(std::stoi(buffer));
+
+
 	// load audio
 	neu::g_audioSystem.AddAudio("hit", "Explosion.wav");
 	neu::g_audioSystem.AddAudio("laser", "Laser_Fire.wav");
-	neu::g_audioSystem.AddAudio("music", "Music.wav");
+	neu::g_audioSystem.AddAudio("PowerUp", "Powerup.wav");
+	neu::g_audioSystem.AddAudio("music", "Music.mp3");
 
 	neu::g_audioSystem.PlayOneShot("music", true);
 
 	// create scene
 	m_scene = std::make_unique<neu::Scene>();
 
+	m_state = eState::Title;
 	return true;
 }
 
@@ -84,7 +92,7 @@ void SpaceGame::Update(float dt)
 		}
 		break;
 	case eState::PlayerDeadStart:
-		m_stateTimer = 3;
+		m_stateTimer = 2;
 		if (m_lives <= 0) m_state = eState::GameOver;
 		else m_state = eState::PlayerDead;
 		break;
@@ -99,6 +107,12 @@ void SpaceGame::Update(float dt)
 		m_stateTimer -= dt;
 		if (m_stateTimer <= 0)
 		{
+			if (m_score > m_highScore)
+			{
+				m_highScore = m_score;
+				std::string scoreString = std::to_string(m_highScore);
+				neu::overwriteFile("HighScore.txt", scoreString);
+			}
 			m_scene->RemoveAll();
 			m_state = eState::Title;
 		}
@@ -106,8 +120,9 @@ void SpaceGame::Update(float dt)
 	default:
 		break;
 	}
-
-	m_scoreText->Create(neu::g_renderer, "Score: " + std::to_string(m_score), {1, 1, 1, 1});
+	
+	m_scoreText->Create(neu::g_renderer, ((m_state == eState::Title) ? "High Score: " + std::to_string(m_highScore) : "Score: " + std::to_string(m_score)), 
+		{1, 1, 1, 1});
 	m_scene->Update(dt);
 }
 
@@ -116,10 +131,6 @@ void SpaceGame::Draw(neu::Renderer& renderer)
 	if (m_state == eState::Title)
 	{
 		m_titleText->Draw(renderer, 400, 300);
-	}
-	else 
-	{
-		m_scoreText->Draw(renderer, 10, 10);
 	}
 
 	if (m_state == eState::GameOver)
@@ -133,6 +144,6 @@ void SpaceGame::Draw(neu::Renderer& renderer)
 		m_livesText->Draw(renderer, 400, 300);
 	}
 
-	
+	m_scoreText->Draw(renderer, 10, 10);
 	m_scene->Draw(renderer);
 }
