@@ -60,7 +60,7 @@ void Player::Update(float dt)
 	{
 		//create rocket
 		neu::Transform transform{m_transform.position, m_transform.rotation + neu::DegreesToRadians(180), m_transform.scale};
-		std::unique_ptr<Rocket> rocket = std::make_unique<Rocket>(m_speed * 1.5, transform, neu::g_ModelManager.Get("Rocket.txt"));
+		std::unique_ptr<Rocket> rocket = std::make_unique<Rocket>(m_speed * 1.5f, transform, neu::g_ModelManager.Get("Rocket.txt"));
 		rocket->m_tag = "Rocket";
 		rocket->m_scene = m_scene;
 		m_scene->Add(std::move(rocket));
@@ -68,7 +68,7 @@ void Player::Update(float dt)
 		m_game->AddPoints(-50);
 	}
 
-	neu::g_Time.SetTimeScale(neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_T) ? 0.5 : 1);
+	neu::g_Time.SetTimeScale(neu::g_inputSystem.GetKeyDown(SDL_SCANCODE_T) ? 0.5f : 1.0f);
 
 	if (m_health <= 0)
 	{

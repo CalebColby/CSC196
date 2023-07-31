@@ -21,7 +21,7 @@ void Rocket::OnCollision(Actor* other)
 		for (size_t i = 0; i < 24; i++)
 		{
 			//create bullets
-			neu::Transform transform{m_transform.position, m_transform.rotation + neu::DegreesToRadians(15 * i), 1};
+			neu::Transform transform{m_transform.position, m_transform.rotation + neu::DegreesToRadians(15.0f * i), 1.0f};
 			std::unique_ptr<Bullet> bullet = std::make_unique<Bullet>(400.0f, transform, m_model);
 			bullet->m_tag = "RocketBullet";
 			m_scene->Add(std::move(bullet));
